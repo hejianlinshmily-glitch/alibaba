@@ -3,498 +3,586 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026春节1688快消品运营作战大图</title>
-    <!-- Tailwind CSS -->
+    <title>OpenClaw 新手与电商应用全攻略</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Noto Sans SC"', 'sans-serif'],
-                    },
-                    colors: {
-                        cny: {
-                            red: '#D7261E',
-                            dark: '#A61B15',
-                            gold: '#F4C430',
-                            bg: '#FDF6F6'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: 温暖中性科技风 (Warm Neutral Tech). Backgrounds: stone-50/100, Text: slate-800, Accents: indigo-600, emerald-500 for success/cloud. -->
+    <!-- Application Structure Plan: 采用侧边栏导航的仪表板结构 (Dashboard Layout)。原报告按逻辑分为“配置要求”、“部署对比”、“安装步骤”和“电商应用”。这种结构能让用户根据自身需求（了解基础、准备安装、探索价值）非线性地跳跃浏览。侧边栏提供全局视野，主内容区利用交互式图表和选项卡降低阅读疲劳，提升信息吸收率。 -->
+    <!-- Visualization & Content Choices: 
+         1. 硬件配置 -> 目标：解释高配置原因 -> 方法：条形图 (Chart.js) 对比不同内存下的系统状态 -> 交互：悬停查看详情 -> 理由：直观展示8G与16G的性能断层，强调16G的必要性。
+         2. 部署方案 -> 目标：对比本地与云端 -> 方法：雷达图 (Chart.js) -> 交互：图例切换 -> 理由：多维度(成本/网络/隐私等)综合评分，雷达图能一眼看出两者的优势侧重点。
+         3. 安装步骤 -> 目标：组织流程 -> 方法：垂直选项卡 (HTML/JS) -> 交互：点击切换步骤 -> 理由：避免长篇大论，让用户一步步专注当前操作。
+         4. 电商应用 -> 目标：展示商业价值 -> 方法：交互式信息卡片网格 (HTML/CSS/JS) -> 交互：点击卡片翻转或展开展示“应用”与“效果” -> 理由：卡片式设计便于归纳独立的使用场景，互动增加趣味性。 
+         (确认：无 SVG，无 Mermaid) 
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
-        body {
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 400px; }
+        }
+        .nav-active {
+            background-color: #e0e7ff;
+            color: #4f46e5;
+            font-weight: 600;
+            border-right: 4px solid #4f46e5;
+        }
+        .nav-item {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-right: 4px solid transparent;
+        }
+        .nav-item:hover:not(.nav-active) {
             background-color: #f3f4f6;
-            scroll-behavior: smooth;
         }
-        .section-card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: transform 0.2s;
+        .step-active {
+            background-color: #4f46e5;
+            color: white;
         }
-        .timeline-line {
-            position: absolute;
-            left: 20px;
-            top: 0;
-            bottom: 0;
-            width: 4px;
+        .step-inactive {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+        .step-inactive:hover {
             background-color: #e5e7eb;
-            z-index: 0;
         }
-        .glass-header {
-            background: rgba(215, 38, 30, 0.95);
-            backdrop-filter: blur(10px);
+        .ec-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .ec-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .hide-section { display: none; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="bg-stone-50 text-slate-800 h-screen flex flex-col md:flex-row overflow-hidden">
 
-    <!-- Header -->
-    <header class="glass-header text-white sticky top-0 z-50 shadow-lg">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-cny-gold text-cny-dark font-bold rounded-full w-10 h-10 flex items-center justify-center text-xl">
-                    <i class="fas fa-dragon"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold tracking-wide">2026春节1688运营作战大图</h1>
-                    <p class="text-xs text-yellow-200">快消品行业 | 执行周期：1月7日 - 2月28日 (5周核心期)</p>
-                </div>
+    <nav class="w-full md:w-64 bg-white shadow-lg z-10 flex-shrink-0 flex flex-col h-auto md:h-full">
+        <div class="p-6 border-b border-stone-100 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xl">
+                O
             </div>
-            <nav class="hidden md:flex gap-6 text-sm font-medium">
-                <a href="#overview" class="hover:text-cny-gold transition">总览</a>
-                <a href="#stages" class="hover:text-cny-gold transition">三阶战役</a>
-                <a href="#top5" class="hover:text-cny-gold transition">TOP5行动</a>
-                <a href="#timeline" class="hover:text-cny-gold transition">时间轴</a>
-                <a href="#risks" class="hover:text-cny-gold transition">风控与KPI</a>
-            </nav>
+            <h1 class="text-xl font-bold text-indigo-900 tracking-tight">OpenClaw 指南</h1>
         </div>
-    </header>
-
-    <main class="container mx-auto px-4 py-6 space-y-8">
-
-        <!-- 1. Dashboard Overview -->
-        <section id="overview" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="section-card p-6 bg-gradient-to-br from-cny-red to-cny-dark text-white">
-                <div class="text-yellow-300 text-sm font-bold uppercase tracking-wider mb-1">预期流量增长</div>
-                <div class="text-4xl font-bold">+75%</div>
-                <div class="text-xs opacity-80 mt-2">流量指数: 100 → 175</div>
-            </div>
-            <div class="section-card p-6 border-l-4 border-cny-gold">
-                <div class="text-gray-500 text-sm font-bold uppercase mb-1">权重提升目标</div>
-                <div class="text-3xl font-bold text-gray-800">+15%</div>
-                <div class="text-xs text-gray-500 mt-2">基准分: 100 → 115</div>
-            </div>
-            <div class="section-card p-6 border-l-4 border-blue-500">
-                <div class="text-gray-500 text-sm font-bold uppercase mb-1">复购率提升</div>
-                <div class="text-3xl font-bold text-gray-800">20-30%</div>
-                <div class="text-xs text-gray-500 mt-2">重点：老客召回</div>
-            </div>
-            <div class="section-card p-6 border-l-4 border-green-500">
-                <div class="text-gray-500 text-sm font-bold uppercase mb-1">核心TOP行动</div>
-                <div class="text-3xl font-bold text-gray-800">5个</div>
-                <div class="text-xs text-gray-500 mt-2">全部为 P0 高优先级</div>
-            </div>
-        </section>
-
-        <!-- 2. Three Stages -->
-        <section id="stages">
-            <div class="flex items-center gap-2 mb-4">
-                <i class="fas fa-layer-group text-cny-red text-xl"></i>
-                <h2 class="text-2xl font-bold text-gray-800">三阶战役规划</h2>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Stage 1 -->
-                <div class="section-card p-6 relative overflow-hidden group hover:border-cny-red border-2 border-transparent transition-all">
-                    <div class="absolute top-0 right-0 bg-gray-100 text-gray-600 px-3 py-1 text-xs font-bold rounded-bl-lg">1.10 - 2.10</div>
-                    <div class="mt-4">
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">春节前 · 蓄势期</h3>
-                        <p class="text-sm text-gray-500 mb-4">时长：32天</p>
-                        <div class="space-y-2">
-                            <div class="flex items-start gap-2 text-sm">
-                                <i class="fas fa-check-circle text-green-500 mt-1"></i>
-                                <span>清仓积压订单 / 新品预热上市</span>
-                            </div>
-                            <div class="flex items-start gap-2 text-sm">
-                                <i class="fas fa-check-circle text-green-500 mt-1"></i>
-                                <span>活动报名 / 宣传造势</span>
-                            </div>
-                        </div>
-                        <div class="mt-4 pt-4 border-t border-gray-100">
-                            <span class="text-xs font-bold text-blue-600">目标：流量 +28% (权重积累)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Stage 2 -->
-                <div class="section-card p-6 relative overflow-hidden group hover:border-cny-red border-2 border-transparent transition-all">
-                    <div class="absolute top-0 right-0 bg-blue-50 text-blue-600 px-3 py-1 text-xs font-bold rounded-bl-lg">2.11 - 2.23</div>
-                    <div class="mt-4">
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">春节中 · 维护期</h3>
-                        <p class="text-sm text-gray-500 mb-4">时长：13天</p>
-                        <div class="space-y-2">
-                            <div class="flex items-start gap-2 text-sm">
-                                <i class="fas fa-robot text-blue-500 mt-1"></i>
-                                <span>24h值班团队 / AI工具配置</span>
-                            </div>
-                            <div class="flex items-start gap-2 text-sm">
-                                <i class="fas fa-shield-alt text-blue-500 mt-1"></i>
-                                <span>发货处理 / 客户维护</span>
-                            </div>
-                        </div>
-                        <div class="mt-4 pt-4 border-t border-gray-100">
-                            <span class="text-xs font-bold text-blue-600">目标：流量稳定 130-135 (评分保护)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Stage 3 -->
-                <div class="section-card p-6 relative overflow-hidden group hover:border-cny-red border-2 border-transparent transition-all bg-red-50">
-                    <div class="absolute top-0 right-0 bg-cny-red text-white px-3 py-1 text-xs font-bold rounded-bl-lg">2.24 - 2.28</div>
-                    <div class="mt-4">
-                        <h3 class="text-xl font-bold text-cny-red mb-2">春节后 · 爆发期</h3>
-                        <p class="text-sm text-gray-500 mb-4">时长：5天 (全年流量起步)</p>
-                        <div class="space-y-2">
-                            <div class="flex items-start gap-2 text-sm">
-                                <i class="fas fa-fire text-cny-red mt-1"></i>
-                                <span>订单集中处理 / 老客复购启动</span>
-                            </div>
-                            <div class="flex items-start gap-2 text-sm">
-                                <i class="fas fa-rocket text-cny-red mt-1"></i>
-                                <span>新品破零 / 参加大促</span>
-                            </div>
-                        </div>
-                        <div class="mt-4 pt-4 border-t border-red-100">
-                            <span class="text-xs font-bold text-cny-red">目标：流量 +47-75% (全面爆发)</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 3. TOP 5 Actions -->
-        <section id="top5">
-            <div class="flex items-center gap-2 mb-4 justify-between">
+        
+        <div class="flex-1 overflow-y-auto py-4 flex flex-row md:flex-col overflow-x-auto md:overflow-x-hidden" id="nav-container">
+            <div class="nav-item nav-active px-6 py-4 flex-shrink-0 md:flex-shrink" data-target="section-intro">
                 <div class="flex items-center gap-2">
-                    <i class="fas fa-list-ol text-cny-red text-xl"></i>
-                    <h2 class="text-2xl font-bold text-gray-800">TOP 5 优先级行动清单</h2>
+                    <span class="text-lg">&#128161;</span>
+                    <span>认识与配置</span>
                 </div>
-                <span class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded">全部为P0最高优先级</span>
             </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div class="nav-item px-6 py-4 flex-shrink-0 md:flex-shrink" data-target="section-deployment">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">&#9878;</span>
+                    <span>部署方式对比</span>
+                </div>
+            </div>
+            <div class="nav-item px-6 py-4 flex-shrink-0 md:flex-shrink" data-target="section-install">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">&#128295;</span>
+                    <span>保姆级安装</span>
+                </div>
+            </div>
+            <div class="nav-item px-6 py-4 flex-shrink-0 md:flex-shrink" data-target="section-ecommerce">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">&#128188;</span>
+                    <span>电商实战应用</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12 relative bg-stone-50/50">
+        
+        <div id="section-intro" class="content-section fade-in max-w-5xl mx-auto">
+            <header class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-2">什么是 OpenClaw？</h2>
+                <p class="text-lg text-slate-600">
+                    本部分将带您了解 OpenClaw 的本质以及它为何需要特定的硬件支持。了解这些基础，有助于您后续顺利运行这个“数字员工”。
+                </p>
+            </header>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-8 mb-8">
+                <p class="text-lg leading-relaxed mb-6">
+                    OpenClaw 本质上是一个<strong>“AI 数字员工” (AI Agent)</strong>。它的大脑是 AI 大模型（如 Minimax、DeepSeek），而它的身体是你的电脑或服务器。它能帮你自动上网、操作软件、回复消息、处理数据。
+                </p>
+
+                <div class="bg-indigo-50 rounded-xl p-6 border border-indigo-100">
+                    <h3 class="text-xl font-bold text-indigo-900 mb-4">&#128421; 电脑配置要求</h3>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start gap-2">
+                            <span class="text-indigo-600 mt-1">&#10004;</span>
+                            <span><strong>Windows 电脑：</strong> 推荐 16G 内存。</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-indigo-600 mt-1">&#10004;</span>
+                            <span><strong>苹果 Mac：</strong> 推荐 M 系列芯片（10核），16G 内存。</span>
+                        </li>
+                    </ul>
+
+                    <h4 class="font-semibold text-slate-800 mb-2">为什么一个聊天机器人需要这么高的配置？</h4>
+                    <p class="text-slate-600 mb-6">
+                        因为它不仅是聊天。当它执行复杂任务（抓取数据、处理大型 Excel、运行小型识别模型）时，需要同时开启多个后台浏览器和进程，极其消耗内存。
+                    </p>
+
+                    <div class="chart-container">
+                        <canvas id="memoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-deployment" class="content-section hide-section fade-in max-w-5xl mx-auto">
+            <header class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-2">部署方式大比拼</h2>
+                <p class="text-lg text-slate-600">
+                    本部分通过多维度数据对比，帮助新手小白在“本地电脑”和“云端服务器”之间做出最合适的选择。
+                </p>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-8 flex flex-col justify-center">
+                    <h3 class="text-xl font-bold text-slate-800 mb-6 text-center">本地部署 vs 云服务器</h3>
+                    <div class="chart-container">
+                        <canvas id="deploymentRadarChart"></canvas>
+                    </div>
+                    <p class="text-sm text-center text-slate-500 mt-4">* 分数越高代表该项体验越好/优势越大</p>
+                </div>
+
+                <div class="flex flex-col gap-6">
+                    <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6">
+                        <h4 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center gap-2">
+                            <span>&#128187;</span> 本地部署 (装自己电脑)
+                        </h4>
+                        <ul class="space-y-2 text-slate-600 text-sm">
+                            <li><strong>资金成本：</strong> 0元 (利用现有电脑)</li>
+                            <li><strong>网络要求：</strong> 较高 (有时需网络辅助连接GitHub)</li>
+                            <li><strong>在线时间：</strong> 电脑关机，AI即下班</li>
+                            <li><strong>技术门槛：</strong> 极低 (适合小白尝鲜)</li>
+                            <li><strong>数据隐私：</strong> 绝对安全 (文件在本地硬盘)</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6">
+                        <h4 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2 flex items-center gap-2">
+                            <span>&#9729;</span> 云端部署 (租用服务器)
+                        </h4>
+                        <ul class="space-y-2 text-slate-600 text-sm">
+                            <li><strong>资金成本：</strong> 约 30~100元/月</li>
+                            <li><strong>网络要求：</strong> 极其稳定 (推荐海外轻量云)</li>
+                            <li><strong>在线时间：</strong> 7×24小时在线</li>
+                            <li><strong>技术门槛：</strong> 中等 (需使用 1Panel 等面板)</li>
+                            <li><strong>数据隐私：</strong> 相对安全 (存于云端)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-gradient-to-r from-indigo-600 to-blue-500 rounded-2xl p-6 text-white shadow-md">
+                <h3 class="text-xl font-bold mb-3 flex items-center gap-2"><span>&#128081;</span> 最终建议路径</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-white/10 rounded-lg p-4">
+                        <h4 class="font-bold text-indigo-100 mb-1">第一阶段：白嫖试水</h4>
+                        <p class="text-sm text-indigo-50">先在本地电脑装！用免费 Token 试试看，确认它能干活了再考虑下一步。</p>
+                    </div>
+                    <div class="bg-white/10 rounded-lg p-4">
+                        <h4 class="font-bold text-indigo-100 mb-1">第二阶段：正式上岗</h4>
+                        <p class="text-sm text-indigo-50">觉得好用，需要半夜回消息、自动发帖，再花几十块租云服务器挂在云端。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-install" class="content-section hide-section fade-in max-w-5xl mx-auto">
+            <header class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-2">保姆级安装与使用</h2>
+                <p class="text-lg text-slate-600">
+                    本部分以“本地部署试水”为主线，带您零基础一步步将 OpenClaw 运行起来。请点击下方步骤查看详情。
+                </p>
+            </header>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden flex flex-col md:flex-row min-h-[500px]">
                 
-                <!-- TOP 1 -->
-                <div class="section-card p-5 border-t-4 border-cny-red shadow-md">
-                    <div class="flex justify-between items-start mb-3">
-                        <h4 class="font-bold text-lg">🥇 TOP 1: 清仓计划</h4>
-                        <span class="text-xs bg-red-600 text-white px-2 py-0.5 rounded-full">今日 - 1.20</span>
-                    </div>
-                    <p class="text-sm text-gray-600 mb-3">目标：库存减少30-50%，现金回笼</p>
-                    <div class="bg-gray-50 p-3 rounded text-xs space-y-1 mb-3">
-                        <p>🔹 统计库存 → 制定清仓方案 → 执行清仓 → 发货完毕</p>
-                        <p class="text-red-500 font-semibold">⚠️ 风险：物流停运硬约束 (提前1周清空)</p>
-                    </div>
-                    <div class="flex justify-between items-center text-xs font-medium text-gray-500">
-                        <span>发货率: 100%</span>
-                        <span class="text-green-600">权重+10-15%</span>
-                    </div>
+                <div class="w-full md:w-1/3 bg-stone-50 border-r border-stone-200 p-4 flex flex-col gap-2" id="step-nav">
+                    <button class="step-btn step-active w-full text-left px-5 py-4 rounded-xl font-semibold transition-colors flex items-center gap-3" data-step="1">
+                        <span class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm border border-current">1</span>
+                        获取 API Token
+                    </button>
+                    <button class="step-btn step-inactive w-full text-left px-5 py-4 rounded-xl font-semibold transition-colors flex items-center gap-3" data-step="2">
+                        <span class="w-8 h-8 rounded-full bg-stone-200 flex items-center justify-center text-sm">2</span>
+                        请“军师”写代码
+                    </button>
+                    <button class="step-btn step-inactive w-full text-left px-5 py-4 rounded-xl font-semibold transition-colors flex items-center gap-3" data-step="3">
+                        <span class="w-8 h-8 rounded-full bg-stone-200 flex items-center justify-center text-sm">3</span>
+                        本地执行安装
+                    </button>
+                    <button class="step-btn step-inactive w-full text-left px-5 py-4 rounded-xl font-semibold transition-colors flex items-center gap-3" data-step="4">
+                        <span class="w-8 h-8 rounded-full bg-stone-200 flex items-center justify-center text-sm">4</span>
+                        填入配置并使用
+                    </button>
                 </div>
 
-                <!-- TOP 2 -->
-                <div class="section-card p-5 border-t-4 border-cny-red shadow-md">
-                    <div class="flex justify-between items-start mb-3">
-                        <h4 class="font-bold text-lg">🥈 TOP 2: 活动报名</h4>
-                        <span class="text-xs bg-orange-500 text-white px-2 py-0.5 rounded-full">1.25 - 2.05</span>
-                    </div>
-                    <p class="text-sm text-gray-600 mb-3">目标：参加拿货节等 (12天窗口)</p>
-                    <div class="bg-gray-50 p-3 rounded text-xs space-y-1 mb-3">
-                        <p>🔹 准备材料 → 研究规则 → 提交申请 → 跟进确认</p>
-                        <p class="text-red-500 font-semibold">⚠️ 风险：错过即无官方流量</p>
-                    </div>
-                    <div class="flex justify-between items-center text-xs font-medium text-gray-500">
-                        <span>报名成功率: 100%</span>
-                        <span class="text-green-600">曝光+20-30%</span>
-                    </div>
-                </div>
-
-                <!-- TOP 3 -->
-                <div class="section-card p-5 border-t-4 border-cny-red shadow-md">
-                    <div class="flex justify-between items-start mb-3">
-                        <h4 class="font-bold text-lg">🥉 TOP 3: 新品布局</h4>
-                        <span class="text-xs bg-yellow-500 text-white px-2 py-0.5 rounded-full">2.02上新 / 2.24破零</span>
-                    </div>
-                    <p class="text-sm text-gray-600 mb-3">策略：上架3-5新品，积累基础数据</p>
-                    <div class="bg-gray-50 p-3 rounded text-xs space-y-1 mb-3">
-                        <p>🔹 上架 → 维护浏览/收藏/加购 → 2月24日集中发力</p>
-                        <p class="text-orange-500 font-semibold">⚠️ 风险：质量差转化低 (需测试)</p>
-                    </div>
-                    <div class="flex justify-between items-center text-xs font-medium text-gray-500">
-                        <span>新品数: 3-5个</span>
-                        <span class="text-green-600">订单占比30-50%</span>
-                    </div>
-                </div>
-
-                <!-- TOP 4 -->
-                <div class="section-card p-5 border-t-4 border-blue-500 shadow-md">
-                    <div class="flex justify-between items-start mb-3">
-                        <h4 class="font-bold text-lg">TOP 4: 值班安排</h4>
-                        <span class="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">2.06 启动</span>
-                    </div>
-                    <p class="text-sm text-gray-600 mb-3">保障：春节期间24h响应不间断</p>
-                    <div class="bg-gray-50 p-3 rounded text-xs space-y-1 mb-3">
-                        <p>🔹 确定人员 → 培训 → 启动AI → 24h值班</p>
-                        <p class="text-orange-500 font-semibold">⚠️ 风险：人员不足 (临时招聘/AI)</p>
-                    </div>
-                    <div class="flex justify-between items-center text-xs font-medium text-gray-500">
-                        <span>响应: 及时</span>
-                        <span class="text-blue-600">保护新灯塔分</span>
-                    </div>
-                </div>
-
-                <!-- TOP 5 -->
-                <div class="section-card p-5 border-t-4 border-purple-500 shadow-md">
-                    <div class="flex justify-between items-start mb-3">
-                        <h4 class="font-bold text-lg">TOP 5: 复购启动</h4>
-                        <span class="text-xs bg-purple-500 text-white px-2 py-0.5 rounded-full">2.24 全力启动</span>
-                    </div>
-                    <p class="text-sm text-gray-600 mb-3">核心：私域激活 + 短信/电话触达</p>
-                    <div class="bg-gray-50 p-3 rounded text-xs space-y-1 mb-3">
-                        <p>🔹 文案准备(2.15前) → 定向优惠 → 集中触达</p>
-                        <p class="text-orange-500 font-semibold">⚠️ 风险：启动晚被截流 (凌晨启动)</p>
-                    </div>
-                    <div class="flex justify-between items-center text-xs font-medium text-gray-500">
-                        <span>文案完成: 2.15</span>
-                        <span class="text-purple-600">复购率+30%</span>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- 4. Timeline -->
-        <section id="timeline">
-            <div class="flex items-center gap-2 mb-6">
-                <i class="fas fa-calendar-alt text-cny-red text-xl"></i>
-                <h2 class="text-2xl font-bold text-gray-800">周执行时间规划</h2>
-            </div>
-            
-            <div class="section-card p-6 md:p-8">
-                <div class="relative pl-6 sm:pl-10 space-y-8">
-                    <div class="timeline-line"></div>
-
-                    <!-- Item 1 -->
-                    <div class="relative">
-                        <div class="absolute -left-10 sm:-left-14 w-8 h-8 rounded-full bg-gray-200 border-4 border-white flex items-center justify-center z-10 font-bold text-xs text-gray-600">1.7</div>
-                        <div>
-                            <span class="text-sm font-bold text-cny-red">1月7日 - 1月15日</span>
-                            <h4 class="font-bold text-lg">TOP1清仓启动 & TOP4值班人员确定</h4>
-                            <ul class="mt-2 text-sm text-gray-600 list-disc list-inside">
-                                <li>□ 清仓计划制定</li>
-                                <li>□ 值班人员确定</li>
-                                <li>□ 新品素材准备</li>
-                            </ul>
+                <div class="w-full md:w-2/3 p-6 md:p-10 relative" id="step-content-container">
+                    
+                    <div id="content-step-1" class="step-content block fade-in">
+                        <h3 class="text-2xl font-bold text-indigo-900 mb-4">步骤 1：准备“大脑”</h3>
+                        <p class="text-slate-600 mb-6">OpenClaw 只是躯干，你需要给它接入大脑才能进行思考。</p>
+                        <div class="space-y-4">
+                            <div class="bg-stone-50 p-4 rounded-lg border border-stone-200">
+                                <span class="font-bold text-slate-700">A.</span> 去 <strong>Minimax 官网</strong> (agent.minimaxi.com) 或 <strong>DeepSeek 官网</strong>注册账号。
+                            </div>
+                            <div class="bg-stone-50 p-4 rounded-lg border border-stone-200">
+                                <span class="font-bold text-slate-700">B.</span> 找到“API 开放平台”或“开发者选项”。
+                            </div>
+                            <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-200 text-emerald-900">
+                                <span class="font-bold">C.</span> 生成一个 <strong>API Key</strong>（一串很长的英文字母和数字），这就是你的“Token”凭证，复制并保存好。
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Item 2 -->
-                    <div class="relative">
-                        <div class="absolute -left-10 sm:-left-14 w-8 h-8 rounded-full bg-orange-100 border-4 border-white flex items-center justify-center z-10 text-orange-600 text-xs">
-                            <i class="fas fa-exclamation"></i>
+                    <div id="content-step-2" class="step-content hidden fade-in">
+                        <h3 class="text-2xl font-bold text-indigo-900 mb-4">步骤 2：请“军师”帮忙</h3>
+                        <p class="text-slate-600 mb-6">利用现有的 AI 工具来获取最新的安装脚本，避免踩坑。</p>
+                        <div class="bg-slate-800 rounded-xl p-6 text-slate-300 font-mono text-sm leading-relaxed shadow-inner">
+                            <p class="text-slate-400 mb-2">在 Minimax 或 Kimi 对话框输入：</p>
+                            <p class="text-green-400">"我是零基础小白，使用的是 Windows (或 Mac) 电脑，请手把手教我如何使用一键脚本安装 OpenClaw，请给出最简单的步骤。"</p>
                         </div>
-                        <div>
-                            <span class="text-sm font-bold text-orange-500">1月25日前 (关键截止日)</span>
-                            <h4 class="font-bold text-lg">TOP2活动报名提交</h4>
-                            <p class="text-sm text-gray-500 mt-1">关键里程碑：错过无流量</p>
-                            <ul class="mt-2 text-sm text-gray-600 list-disc list-inside">
-                                <li>□ 活动报名已提交</li>
-                                <li>□ 新品基础数据积累</li>
-                                <li>□ 值班培训完成</li>
-                            </ul>
-                        </div>
+                        <p class="mt-6 text-slate-600">
+                            &#10145; AI 会返回给你一段一键安装的代码（通常是一段以 <code class="bg-stone-200 px-1 rounded text-pink-600">curl</code> 开头的命令）。
+                        </p>
                     </div>
 
-                    <!-- Item 3 -->
-                    <div class="relative">
-                        <div class="absolute -left-10 sm:-left-14 w-8 h-8 rounded-full bg-gray-200 border-4 border-white flex items-center justify-center z-10 font-bold text-xs text-gray-600">2.2</div>
-                        <div>
-                            <span class="text-sm font-bold text-gray-500">2月2日 - 2月9日</span>
-                            <h4 class="font-bold text-lg">TOP3新品上架 & TOP5复购方案完成</h4>
-                            <ul class="mt-2 text-sm text-gray-600 list-disc list-inside">
-                                <li>□ 新品已上架 ≥3个</li>
-                                <li>□ 复购方案完成</li>
-                                <li>□ 活动报名材料准备</li>
-                            </ul>
-                        </div>
+                    <div id="content-step-3" class="step-content hidden fade-in">
+                        <h3 class="text-2xl font-bold text-indigo-900 mb-4">步骤 3：本地执行安装</h3>
+                        <p class="text-slate-600 mb-6">在您的电脑上运行刚才获取的指令。</p>
+                        <ul class="space-y-5 text-slate-700 relative border-l-2 border-indigo-100 ml-3 pl-6">
+                            <li class="relative">
+                                <div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-indigo-500 border-4 border-white"></div>
+                                <strong>打开终端：</strong> <br>
+                                <span class="text-sm text-slate-500">Windows：按下 <kbd class="bg-stone-100 border border-stone-300 rounded px-1">Win + R</kbd>，输入 <code>cmd</code> 回车。<br>Mac：打开“终端 (Terminal)”应用。</span>
+                            </li>
+                            <li class="relative">
+                                <div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-indigo-500 border-4 border-white"></div>
+                                <strong>粘贴代码：</strong> <br>
+                                <span class="text-sm text-slate-500">将 AI 给你的那段代码复制进去，按回车。</span>
+                            </li>
+                            <li class="relative">
+                                <div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-indigo-500 border-4 border-white"></div>
+                                <strong>耐心等待：</strong> <br>
+                                <span class="text-sm text-slate-500">喝杯茶等待它自动下载和安装（若卡住报错大概率是网络问题，可向AI索要国内镜像方案）。</span>
+                            </li>
+                        </ul>
                     </div>
 
-                    <!-- Item 4 -->
-                    <div class="relative">
-                        <div class="absolute -left-10 sm:-left-14 w-8 h-8 rounded-full bg-blue-100 border-4 border-white flex items-center justify-center z-10 text-blue-600 text-xs">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <div>
-                            <span class="text-sm font-bold text-blue-500">2月11日</span>
-                            <h4 class="font-bold text-lg">值班启动 & AI工具配置</h4>
-                            <ul class="mt-2 text-sm text-gray-600 list-disc list-inside">
-                                <li>□ 值班24h启动</li>
-                                <li>□ AI工具配置好</li>
-                                <li>□ 复购文案准备</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Item 5 -->
-                    <div class="relative">
-                        <div class="absolute -left-10 sm:-left-14 w-8 h-8 rounded-full bg-cny-red border-4 border-white flex items-center justify-center z-10 text-white text-xs">
-                            <i class="fas fa-flag"></i>
-                        </div>
-                        <div>
-                            <span class="text-sm font-bold text-cny-red">2月24日</span>
-                            <h4 class="font-bold text-lg">复购启动 / 新品破零 / 参加大促</h4>
-                            <div class="p-3 bg-red-50 rounded-lg mt-2 border border-red-100">
-                                <ul class="text-sm text-gray-700 space-y-1">
-                                    <li>🚀 □ 复购活动启动</li>
-                                    <li>🚀 □ 新品集中发力</li>
-                                    <li>🚀 □ 大促已参加</li>
-                                </ul>
+                    <div id="content-step-4" class="step-content hidden fade-in">
+                        <h3 class="text-2xl font-bold text-indigo-900 mb-4">步骤 4：填入 Token</h3>
+                        <p class="text-slate-600 mb-6">激活您的数字员工并开始使用。</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-stone-50 p-4 rounded-lg text-center border border-stone-200">
+                                <div class="text-2xl mb-2">&#127183;</div>
+                                <div class="font-bold text-sm text-slate-800">1. 打开网址</div>
+                                <div class="text-xs text-slate-500 mt-1">安装完成后，终端会提示网址（如 localhost:18789），在浏览器打开。</div>
+                            </div>
+                            <div class="bg-stone-50 p-4 rounded-lg text-center border border-stone-200">
+                                <div class="text-2xl mb-2">&#9881;</div>
+                                <div class="font-bold text-sm text-slate-800">2. 进入设置</div>
+                                <div class="text-xs text-slate-500 mt-1">在 Settings 中找到填模型和 API Key 的地方。</div>
+                            </div>
+                            <div class="bg-stone-50 p-4 rounded-lg text-center border border-stone-200">
+                                <div class="text-2xl mb-2">&#128273;</div>
+                                <div class="font-bold text-sm text-slate-800">3. 填入凭证</div>
+                                <div class="text-xs text-slate-500 mt-1">将步骤1申请的 API Key 填入并保存。</div>
+                            </div>
+                            <div class="bg-indigo-50 p-4 rounded-lg text-center border border-indigo-200">
+                                <div class="text-2xl mb-2">&#127881;</div>
+                                <div class="font-bold text-sm text-indigo-900">4. 大功告成</div>
+                                <div class="text-xs text-indigo-700 mt-1">现在可以在界面里给它安排工作了！</div>
                             </div>
                         </div>
                     </div>
 
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- 5. Risks & KPIs -->
-        <section id="risks" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
-            <!-- Risk Table -->
-            <div class="section-card p-6">
-                <div class="flex items-center gap-2 mb-4">
-                    <i class="fas fa-shield-virus text-cny-red text-xl"></i>
-                    <h3 class="text-xl font-bold text-gray-800">风险预案 (Top 3)</h3>
+        <div id="section-ecommerce" class="content-section hide-section fade-in max-w-5xl mx-auto">
+            <header class="mb-8">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-2">电商领域的逆天用处</h2>
+                <p class="text-lg text-slate-600">
+                    本部分展示 OpenClaw 作为效率神器的具体商业场景。点击下方卡片，查看具体的应用方式与实现效果。
+                </p>
+                <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mt-4 text-amber-800">
+                    <strong>总结结论：</strong> 对于电商从业者，OpenClaw 可以替代大量“机械、重复、需要耗费人工时间”的电脑操作，让您将精力集中在选品和运营策略上。
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left">
-                        <thead class="text-xs text-gray-500 uppercase bg-gray-50">
-                            <tr>
-                                <th class="px-3 py-3">风险项</th>
-                                <th class="px-3 py-3">等级</th>
-                                <th class="px-3 py-3">预防/应急</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border-b">
-                                <td class="px-3 py-4 font-medium">物流停运无法发货</td>
-                                <td class="px-3 py-4"><span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">🔴 最高</span></td>
-                                <td class="px-3 py-4 text-gray-600">
-                                    <div class="mb-1">预防: 1月10日前完全清空</div>
-                                    <div class="text-xs text-red-500">应急: 顺丰加费(运费+10元)</div>
-                                </td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="px-3 py-4 font-medium">活动报名错过期限</td>
-                                <td class="px-3 py-4"><span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">🔴 最高</span></td>
-                                <td class="px-3 py-4 text-gray-600">
-                                    <div class="mb-1">预防: 1月20日备好材料</div>
-                                    <div class="text-xs text-red-500">应急: 联系官方补救/下一期</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="px-3 py-4 font-medium">新品质量不达标</td>
-                                <td class="px-3 py-4"><span class="bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded">🟠 高</span></td>
-                                <td class="px-3 py-4 text-gray-600">
-                                    <div class="mb-1">预防: 春节前产品测试</div>
-                                    <div class="text-xs text-orange-500">应急: 快速替换更好商品</div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="ecommerce-cards">
             </div>
-
-            <!-- Success Indicators -->
-            <div class="section-card p-6">
-                <div class="flex items-center gap-2 mb-4">
-                    <i class="fas fa-chart-line text-blue-600 text-xl"></i>
-                    <h3 class="text-xl font-bold text-gray-800">成功指标 (KPIs)</h3>
-                </div>
-                
-                <div class="space-y-6">
-                    <!-- KPI 1 -->
-                    <div>
-                        <div class="flex justify-between mb-1">
-                            <span class="text-sm font-medium text-gray-700">开年流量增长率</span>
-                            <span class="text-sm font-medium text-blue-700">目标: 175 (增长75%)</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div class="bg-blue-600 h-2.5 rounded-full" style="width: 75%"></div>
-                        </div>
-                        <div class="flex justify-between text-xs text-gray-500 mt-1">
-                            <span>基准: 100</span>
-                            <span>检查点: 2.25达标 (1.31:128)</span>
-                        </div>
-                    </div>
-
-                    <!-- KPI 2 -->
-                    <div>
-                        <div class="flex justify-between mb-1">
-                            <span class="text-sm font-medium text-gray-700">店铺权重提升</span>
-                            <span class="text-sm font-medium text-green-600">目标: 115 (提升15%)</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div class="bg-green-500 h-2.5 rounded-full" style="width: 60%"></div>
-                        </div>
-                        <div class="flex justify-between text-xs text-gray-500 mt-1">
-                            <span>基准: 100</span>
-                            <span>检查点: 2.25达标 (1.31:110)</span>
-                        </div>
-                    </div>
-
-                     <!-- KPI 3 -->
-                     <div>
-                        <div class="flex justify-between mb-1">
-                            <span class="text-sm font-medium text-gray-700">客户粘性(复购)</span>
-                            <span class="text-sm font-medium text-purple-600">目标: ↑20-30%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div class="bg-purple-500 h-2.5 rounded-full" style="width: 50%"></div>
-                        </div>
-                        <div class="flex justify-between text-xs text-gray-500 mt-1">
-                            <span>状态: 春节后爆发</span>
-                            <span>判定: <10% 需改进</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-6 bg-yellow-50 p-3 rounded text-xs text-yellow-800 border border-yellow-200">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    检查时间：每周五、每月5日、3月31日最终复盘。
-                </div>
-            </div>
-        </section>
+        </div>
 
     </main>
 
-    <footer class="bg-gray-800 text-gray-400 py-8 mt-12">
-        <div class="container mx-auto px-4 text-center">
-            <p class="mb-2">2026 春节1688商家快消品运营完整方案</p>
-            <p class="text-xs">关键日期提醒：1月10日清仓截止 | 2月24日全面爆发 | 3月31日双保政策截止</p>
-            <div class="mt-4 text-xs opacity-50">
-                Generated from Excel Strategy Document
-            </div>
-        </div>
-    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initNavigation();
+            initCharts();
+            initInstallSteps();
+            initEcommerceCards();
+        });
 
+        function initNavigation() {
+            const navItems = document.querySelectorAll('.nav-item');
+            const sections = document.querySelectorAll('.content-section');
+
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    navItems.forEach(nav => nav.classList.remove('nav-active'));
+                    item.classList.add('nav-active');
+
+                    const targetId = item.getAttribute('data-target');
+                    sections.forEach(sec => {
+                        sec.classList.add('hide-section');
+                        if(sec.id === targetId) {
+                            sec.classList.remove('hide-section');
+                        }
+                    });
+                });
+            });
+        }
+
+        function initCharts() {
+            Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+            Chart.defaults.color = '#64748b';
+
+            const memCtx = document.getElementById('memoryChart').getContext('2d');
+            new Chart(memCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['4GB (极度卡顿)', '8GB (勉强运行)', '16GB (官方推荐)', '32GB (流畅多开)'],
+                    datasets: [{
+                        label: '系统稳定性与任务承载力',
+                        data: [10, 35, 85, 100],
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.7)', 
+                            'rgba(245, 158, 11, 0.7)', 
+                            'rgba(16, 185, 129, 0.8)', 
+                            'rgba(59, 130, 246, 0.8)'  
+                        ],
+                        borderColor: [
+                            'rgb(239, 68, 68)',
+                            'rgb(245, 158, 11)',
+                            'rgb(16, 185, 129)',
+                            'rgb(59, 130, 246)'
+                        ],
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if(context.dataIndex === 0) return '极易崩溃，无法多开后台网页';
+                                    if(context.dataIndex === 1) return '勉强运行单任务，复杂数据处理易卡死';
+                                    if(context.dataIndex === 2) return '流畅运行，满足大部分自动化与抓取需求';
+                                    if(context.dataIndex === 3) return '性能过剩，适合极重度多开玩家';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { display: false },
+                            grid: { drawBorder: false, color: '#f1f5f9' },
+                            title: { display: true, text: '运行表现指数' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            const radarCtx = document.getElementById('deploymentRadarChart').getContext('2d');
+            new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['资金成本优势', '网络稳定性', '24小时在线', '操作低门槛', '数据隐私'],
+                    datasets: [
+                        {
+                            label: '本地电脑部署',
+                            data: [10, 4, 3, 9, 10],
+                            fill: true,
+                            backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                            borderColor: 'rgb(79, 70, 229)',
+                            pointBackgroundColor: 'rgb(79, 70, 229)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(79, 70, 229)'
+                        },
+                        {
+                            label: '云端服务器部署',
+                            data: [3, 10, 10, 6, 7],
+                            fill: true,
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                            borderColor: 'rgb(16, 185, 129)',
+                            pointBackgroundColor: 'rgb(16, 185, 129)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(16, 185, 129)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    elements: { line: { borderWidth: 2 } },
+                    scales: {
+                        r: {
+                            angleLines: { color: '#e2e8f0' },
+                            grid: { color: '#e2e8f0' },
+                            pointLabels: { font: { size: 12 }, color: '#475569' },
+                            ticks: { display: false, min: 0, max: 10 }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        function initInstallSteps() {
+            const btns = document.querySelectorAll('.step-btn');
+            const contents = document.querySelectorAll('.step-content');
+
+            btns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    btns.forEach(b => {
+                        b.classList.remove('step-active');
+                        b.classList.add('step-inactive');
+                        b.querySelector('span').classList.remove('bg-white/20', 'border', 'border-current');
+                        b.querySelector('span').classList.add('bg-stone-200');
+                    });
+                    
+                    btn.classList.add('step-active');
+                    btn.classList.remove('step-inactive');
+                    btn.querySelector('span').classList.add('bg-white/20', 'border', 'border-current');
+                    btn.querySelector('span').classList.remove('bg-stone-200');
+
+                    const step = btn.getAttribute('data-step');
+                    contents.forEach(content => {
+                        content.classList.add('hidden');
+                        if(content.id === `content-step-${step}`) {
+                            content.classList.remove('hidden');
+                        }
+                    });
+                });
+            });
+        }
+
+        function initEcommerceCards() {
+            const ecommerceData = [
+                {
+                    title: "24 小时金牌客服",
+                    icon: "&#128104;&#8205;&#128187;",
+                    app: "将 OpenClaw 接入您的客服系统或社群（如微信、Telegram）。",
+                    effect: "半夜 2 点客户问“这件衣服有色差吗？”“发什么快递？”，它能立刻根据商品库进行拟人化回复，甚至安抚退换货情绪。"
+                },
+                {
+                    title: "竞品情报自动抓取",
+                    icon: "&#128202;",
+                    app: "下发指令：“每天早上9点去拼多多搜某关键词，提取销量前10的价格和主图卖点”。",
+                    effect: "它会自动打开网页浏览，把数据整理成 Excel 发给你，实现知己知彼，免去人工盯盘。"
+                },
+                {
+                    title: "文案批量生成",
+                    icon: "&#128221;",
+                    app: "只需给它一张产品图或者几个关键词属性。",
+                    effect: "自动写出符合小红书爆款风格的种草文案、亚马逊 SEO 标题和五点描述，甚至支持多国语言翻译。"
+                },
+                {
+                    title: "自动化订单处理",
+                    icon: "&#9881;&#65039;",
+                    app: "接管繁琐的后台 ERP 操作流程（RPA能力）。",
+                    effect: "接到大量订单时自动登录系统，核对买家地址，拦截偏远地区订单，或自动向供应商发送采购邮件。"
+                },
+                {
+                    title: "评价分析与回评",
+                    icon: "&#11088;",
+                    app: "将大量的买家历史评价数据丢给它处理。",
+                    effect: "自动总结“客户最不满意的3个点”（如物流慢），并自动为五星评价回复感谢语，为差评回复道歉及补偿方案。"
+                }
+            ];
+
+            const container = document.getElementById('ecommerce-cards');
+            
+            ecommerceData.forEach((data, index) => {
+                const card = document.createElement('div');
+                card.className = "ec-card bg-white rounded-2xl border border-stone-200 p-6 flex flex-col h-full";
+                
+                card.innerHTML = `
+                    <div class="text-4xl mb-4 text-indigo-500">${data.icon}</div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-3">${data.title}</h3>
+                    <div class="flex-1 flex flex-col justify-center">
+                        <div class="card-front">
+                            <p class="text-sm text-slate-500 mb-2 uppercase font-semibold tracking-wider">应用方式</p>
+                            <p class="text-slate-700">${data.app}</p>
+                            <button class="mt-4 text-indigo-600 font-semibold text-sm flex items-center gap-1 hover:text-indigo-800 transition-colors">
+                                查看实现效果 <span>&#10140;</span>
+                            </button>
+                        </div>
+                        <div class="card-back hidden">
+                            <p class="text-sm text-indigo-500 mb-2 uppercase font-semibold tracking-wider">达成效果</p>
+                            <p class="text-slate-800 font-medium">${data.effect}</p>
+                            <button class="mt-4 text-slate-400 font-semibold text-sm flex items-center gap-1 hover:text-slate-600 transition-colors">
+                                &#11013; 返回
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                card.addEventListener('click', () => {
+                    const front = card.querySelector('.card-front');
+                    const back = card.querySelector('.card-back');
+                    
+                    if(front.classList.contains('hidden')) {
+                        front.classList.remove('hidden');
+                        back.classList.add('hidden');
+                        card.classList.remove('bg-indigo-50', 'border-indigo-200');
+                    } else {
+                        front.classList.add('hidden');
+                        back.classList.remove('hidden');
+                        card.classList.add('bg-indigo-50', 'border-indigo-200');
+                    }
+                });
+
+                container.appendChild(card);
+            });
+        }
+    </script>
 </body>
 </html>
