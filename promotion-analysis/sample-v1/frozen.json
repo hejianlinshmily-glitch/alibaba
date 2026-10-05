@@ -1,0 +1,7 @@
+{
+  "sampleVersion": "v1",
+  "rulesVersion": "1.1",
+  "data": "fictional-only",
+  "sha256": "41905d521c8164fb09be16e00901b4a9e0394d30a014f97d55ce4c0093b46608",
+  "policy": "冻结此版本；后续调整另建sample-v2，日常只更新live"
+}
